@@ -1,5 +1,9 @@
 # Machine Mark for macOS
 
+<p align="center">
+  <img src="icon/logo.png" width="128" alt="Machine Mark logo: rings of dots in blue, yellow and pink">
+</p>
+
 An "About This Mac" drawn from your Mac's real specs, every mark made of round dots. Each ring is one fact about the computer, and you can knead the whole thing into a strip of rows and back.
 
 A macOS port of [omarchy-machine-mark](https://github.com/erikrjohansson/omarchy-machine-mark) by Erik Johansson. The drawing engine (`web/sigil.js`) is the original's, run in a native window.
@@ -19,6 +23,10 @@ You need the Xcode command line tools (`xcode-select --install`).
 ```
 
 `./build.sh` only builds into `build/`, and `./build.sh run` builds and opens the window.
+
+## Logo
+
+The logo is the sigil boiled down to a few rings: the cores as short spokes, a blue ring for hardware, and yellow and pink rings filled part-way like the window's dials, all in round dots.
 
 ## Use
 
@@ -54,6 +62,7 @@ Sources/Collector.swift  reads the Mac's facts
 Sources/Palette.swift    colours from macOS's appearance and accent
 web/sigil.js             the drawing engine (from the original, adapted)
 web/card.js              the card: knead, hover, keys, words
+icon/                    the app's logo and icon
 ```
 
 ## License

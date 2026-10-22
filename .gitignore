@@ -1,3 +1,7 @@
 build/
 web/sample.json
 .DS_Store
+# Only the finished logo is kept in the repo; the scripts that draw it stay local.
+icon/*
+!icon/AppIcon.icns
+!icon/logo.png

@@ -16,6 +16,7 @@ swiftc -O -swift-version 5 -target "$(uname -m)-apple-macos13.0" \
   Sources/*.swift -o "$app/Contents/MacOS/MachineMark"
 
 cp -R web "$app/Contents/Resources/web"
+cp icon/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
 rm -f "$app/Contents/Resources/web/sample.json"
 cat > "$app/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
@@ -27,6 +28,7 @@ cat > "$app/Contents/Info.plist" <<'PLIST'
   <key>CFBundleIdentifier</key><string>io.github.macos-machine-mark</string>
   <key>CFBundleExecutable</key><string>MachineMark</string>
   <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundleShortVersionString</key><string>0.1.0</string>
   <key>CFBundleVersion</key><string>1</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>
