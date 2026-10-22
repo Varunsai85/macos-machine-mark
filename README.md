@@ -31,7 +31,7 @@ Open it like any app (Spotlight, Launchpad, Finder), from its menu bar icon, or 
 | <kbd>↑</kbd> <kbd>↓</kbd>, hover | pick a ring; the footer explains it |
 | <kbd>Esc</kbd>, <kbd>⌘W</kbd> | close |
 
-To start it at login, add it in **System Settings → General → Login Items**. It then opens its window at login; `open -a "Machine Mark" --args --background` starts it in the menu bar only.
+To start it at login, add it in **System Settings → General → Login Items**. At login it starts quietly in the menu bar; opening it from Spotlight or ⌃⌥⌘A shows the window.
 
 ## What it reads
 

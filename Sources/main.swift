@@ -57,8 +57,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         // Read once soon after launch, so the first opening has the facts.
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in if self?.machineJSON == nil { self?.read() } }
         // Launched from Spotlight, Finder or the Dock: open the window straight
-        // away. `--background` starts it in the menu bar only.
-        if !CommandLine.arguments.contains("--background") { open() }
+        // away. At login (or with `--background`) it starts in the menu bar only.
+        if !launchedAtLogin() && !CommandLine.arguments.contains("--background") { open() }
+    }
+
+    // macOS marks the launch it makes for a Login Item in the launch event.
+    func launchedAtLogin() -> Bool {
+        guard let event = NSAppleEventManager.shared().currentAppleEvent,
+              event.eventID == kAEOpenApplication else { return false }
+        return event.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem
     }
 
     // Opened again while running (Spotlight, Finder, `open -a`): show the window.
