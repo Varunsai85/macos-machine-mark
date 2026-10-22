@@ -56,12 +56,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
 
         // Read once soon after launch, so the first opening has the facts.
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in if self?.machineJSON == nil { self?.read() } }
-        if CommandLine.arguments.contains("--open") { open() }
+        // Launched from Spotlight, Finder or the Dock: open the window straight
+        // away. `--background` starts it in the menu bar only.
+        if !CommandLine.arguments.contains("--background") { open() }
     }
 
+    // Opened again while running (Spotlight, Finder, `open -a`): show the window.
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
         open()
         return true
+    }
+
+    func applicationDidBecomeActive(_ n: Notification) {
+        if !window.isVisible && !window.isMiniaturized { open() }
     }
 
     // ------------------------------------------------------------ window
@@ -119,6 +126,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         liveTimer?.invalidate(); liveTimer = nil
         call("MachineMark.closed()")
         NSApp.setActivationPolicy(.accessory)
+        // Hand focus back to the app the user came from, so the next launch
+        // from Spotlight activates this one again (and opens the window).
+        DispatchQueue.main.async { if !self.window.isVisible { NSApp.hide(nil) } }
     }
 
     func windowDidMiniaturize(_ n: Notification) { call("MachineMark.closed()") }

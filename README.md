@@ -22,7 +22,7 @@ You need the Xcode command line tools (`xcode-select --install`).
 
 ## Use
 
-The app lives in the menu bar. Open the window from the menu bar icon or with **⌃⌥⌘A** from anywhere.
+Open it like any app (Spotlight, Launchpad, Finder), from its menu bar icon, or with **⌃⌥⌘A** from anywhere. Closing the window leaves it in the menu bar, ready to open again.
 
 | | |
 |---|---|
@@ -31,7 +31,7 @@ The app lives in the menu bar. Open the window from the menu bar icon or with **
 | <kbd>↑</kbd> <kbd>↓</kbd>, hover | pick a ring; the footer explains it |
 | <kbd>Esc</kbd>, <kbd>⌘W</kbd> | close |
 
-To start it at login, add it in **System Settings → General → Login Items**.
+To start it at login, add it in **System Settings → General → Login Items**. It then opens its window at login; `open -a "Machine Mark" --args --background` starts it in the menu bar only.
 
 ## What it reads
 

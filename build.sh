@@ -46,11 +46,11 @@ case "${1:-}" in
     cp -R "$app" /Applications/
     # Only the installed copy, so Spotlight doesn't list the app twice.
     rm -rf build
-    open "/Applications/Machine Mark.app" --args --open
+    open "/Applications/Machine Mark.app"
     echo "Installed to /Applications. Press ⌃⌥⌘A, or use the menu bar icon."
     ;;
   run)
     pkill -x MachineMark 2>/dev/null || true
-    open "$app" --args --open
+    open "$app"
     ;;
 esac
