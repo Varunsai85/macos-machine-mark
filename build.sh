@@ -24,7 +24,7 @@ cat > "$app/Contents/Info.plist" <<'PLIST'
 <dict>
   <key>CFBundleName</key><string>Machine Mark</string>
   <key>CFBundleDisplayName</key><string>Machine Mark</string>
-  <key>CFBundleIdentifier</key><string>io.github.macos-linx.machine-mark</string>
+  <key>CFBundleIdentifier</key><string>io.github.macos-machine-mark</string>
   <key>CFBundleExecutable</key><string>MachineMark</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>0.1.0</string>
