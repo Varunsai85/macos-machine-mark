@@ -44,6 +44,8 @@ case "${1:-}" in
     pkill -x MachineMark 2>/dev/null || true
     rm -rf "/Applications/Machine Mark.app"
     cp -R "$app" /Applications/
+    # Only the installed copy, so Spotlight doesn't list the app twice.
+    rm -rf build
     open "/Applications/Machine Mark.app" --args --open
     echo "Installed to /Applications. Press ⌃⌥⌘A, or use the menu bar icon."
     ;;
