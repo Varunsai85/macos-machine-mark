@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About This Mac</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="card">
+  <header id="head">
+    <div id="logo"></div>
+    <div id="who">
+      <div id="host">&nbsp;</div>
+      <div id="osline" class="hover">macOS</div>
+      <div id="modelline" class="hover"></div>
+    </div>
+  </header>
+  <div class="sep"></div>
+  <main id="stage">
+    <canvas id="cv"></canvas>
+    <div id="hl"></div>
+    <div id="words"></div>
+    <div id="loading">Reading this Mac…</div>
+  </main>
+  <div class="sep"></div>
+  <footer id="foot">
+    <div id="status"></div>
+    <div id="shapes">
+      <button id="bSigil" class="sel">Sigil</button>
+      <button id="bStrip">Strip</button>
+    </div>
+  </footer>
+</div>
+<script src="sigil.js"></script>
+<script src="card.js"></script>
+</body>
+</html>
