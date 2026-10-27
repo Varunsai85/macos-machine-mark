@@ -7,7 +7,7 @@
 set -euo pipefail
 
 # Bump with each release; the app compares it with the latest GitHub release.
-version=1.1.0
+version=1.1.1
 
 cd "$(dirname "$0")"
 # The About window shows these; a copy without git history shows none.
@@ -48,9 +48,16 @@ PLIST
 codesign --force --sign - "$app" >/dev/null 2>&1 || true
 echo "Built $app"
 
+# Quit a running copy and wait until it's gone; opening the app while the old
+# one is still exiting fails (LaunchServices error -600).
+quit_running() {
+  pkill -x MachineMark 2>/dev/null || return 0
+  for _ in $(seq 50); do pgrep -x MachineMark >/dev/null || return 0; sleep 0.1; done
+}
+
 case "${1:-}" in
   install)
-    pkill -x MachineMark 2>/dev/null || true
+    quit_running
     rm -rf "/Applications/Machine Mark.app"
     cp -R "$app" /Applications/
     # Only the installed copy, so Spotlight doesn't list the app twice.
@@ -59,7 +66,7 @@ case "${1:-}" in
     echo "Installed to /Applications. Press ⌃⌥⌘A, or use the menu bar icon."
     ;;
   run)
-    pkill -x MachineMark 2>/dev/null || true
+    quit_running
     open "$app"
     ;;
 esac
