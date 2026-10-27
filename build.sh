@@ -6,6 +6,9 @@
 #   ./build.sh run        build and open the window straight away
 set -euo pipefail
 
+# Bump with each release; the app compares it with the latest GitHub release.
+version=1.0.0
+
 cd "$(dirname "$0")"
 app="build/Machine Mark.app"
 rm -rf "$app"
@@ -18,7 +21,7 @@ swiftc -O -swift-version 5 -target "$(uname -m)-apple-macos13.0" \
 cp -R web "$app/Contents/Resources/web"
 cp icon/AppIcon.icns "$app/Contents/Resources/AppIcon.icns"
 rm -f "$app/Contents/Resources/web/sample.json"
-cat > "$app/Contents/Info.plist" <<'PLIST'
+cat > "$app/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
@@ -29,7 +32,7 @@ cat > "$app/Contents/Info.plist" <<'PLIST'
   <key>CFBundleExecutable</key><string>MachineMark</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
-  <key>CFBundleShortVersionString</key><string>0.1.0</string>
+  <key>CFBundleShortVersionString</key><string>$version</string>
   <key>CFBundleVersion</key><string>1</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>LSUIElement</key><true/>

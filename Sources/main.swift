@@ -32,8 +32,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     // The app the user was in before opening (the Apps ring marks it).
     var cameFrom: URL?
     var appearanceWatch: NSKeyValueObservation?
+    // A newer release, once a check has found one; its menu items show it.
+    var update: Updater.Release?
+    var updateItems: [NSMenuItem] = []
+    var autoCheckItem: NSMenuItem!
+    var updateTimer: Timer?
 
     func applicationDidFinishLaunching(_ n: Notification) {
+        UserDefaults.standard.register(defaults: ["checkForUpdates": true])
         NSApp.setActivationPolicy(.accessory)
         buildMenus()
         buildStatusItem()
@@ -56,6 +62,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
 
         // Read once soon after launch, so the first opening has the facts.
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in if self?.machineJSON == nil { self?.read() } }
+        scheduleUpdateChecks()
         // Launched from Spotlight, Finder or the Dock: open the window straight
         // away. At login (or with `--background`) it starts in the menu bar only.
         if !launchedAtLogin() && !CommandLine.arguments.contains("--background") { open() }
@@ -208,6 +215,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         let main = NSMenu()
         let appItem = NSMenuItem()
         let appMenu = NSMenu()
+        appMenu.addItem(updateItem())
+        let checkItem = NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
+        checkItem.target = self
+        appMenu.addItem(checkItem)
+        appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Hide Machine Mark", action: #selector(NSApplication.hide(_:)), keyEquivalent: "h")
         appMenu.addItem(.separator())
         appMenu.addItem(withTitle: "Quit Machine Mark", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
@@ -236,8 +248,89 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         openItem.target = self
         menu.addItem(openItem)
         menu.addItem(.separator())
+        menu.addItem(updateItem())
+        let checkItem = NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
+        checkItem.target = self
+        menu.addItem(checkItem)
+        autoCheckItem = NSMenuItem(title: "Check for Updates Automatically", action: #selector(toggleAutoCheck), keyEquivalent: "")
+        autoCheckItem.target = self
+        autoCheckItem.state = UserDefaults.standard.bool(forKey: "checkForUpdates") ? .on : .off
+        menu.addItem(autoCheckItem)
+        menu.addItem(.separator())
         menu.addItem(withTitle: "Quit Machine Mark", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         status.menu = menu
+    }
+
+    // ------------------------------------------------------------ updates
+
+    // "Update to 1.1.0…", hidden until a check finds a newer release.
+    func updateItem() -> NSMenuItem {
+        let item = NSMenuItem(title: "", action: #selector(openUpdate), keyEquivalent: "")
+        item.target = self
+        item.isHidden = true
+        updateItems.append(item)
+        return item
+    }
+
+    // Once soon after launch, then daily (it can sit in the menu bar for weeks).
+    func scheduleUpdateChecks() {
+        updateTimer?.invalidate(); updateTimer = nil
+        guard UserDefaults.standard.bool(forKey: "checkForUpdates") else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in self?.lookForUpdate(telling: false) }
+        updateTimer = Timer.scheduledTimer(withTimeInterval: 24 * 60 * 60, repeats: true) { [weak self] _ in
+            self?.lookForUpdate(telling: false)
+        }
+    }
+
+    @objc func toggleAutoCheck() {
+        let on = !UserDefaults.standard.bool(forKey: "checkForUpdates")
+        UserDefaults.standard.set(on, forKey: "checkForUpdates")
+        autoCheckItem.state = on ? .on : .off
+        scheduleUpdateChecks()
+    }
+
+    @objc func checkForUpdates() { lookForUpdate(telling: true) }
+
+    // `telling`: asked from the menu, so say what was found even if nothing.
+    func lookForUpdate(telling: Bool) {
+        Updater.latest { [weak self] release, reached in
+            guard let self else { return }
+            if let release, Updater.isNewer(release.version, than: Updater.current) {
+                self.update = release
+                for item in self.updateItems {
+                    item.title = "Update to \(release.version)…"
+                    item.isHidden = false
+                }
+                self.status.button?.image = NSImage(systemSymbolName: "circle.dotted.circle", accessibilityDescription: "Machine Mark: update available")
+                self.status.button?.image?.isTemplate = true
+                if telling { self.tellUpdate(release) }
+            } else if telling {
+                self.tell(reached ? "Machine Mark is up to date" : "Couldn't reach GitHub",
+                          reached ? "You have version \(Updater.current), the latest." : "Check your connection and try again.")
+            }
+        }
+    }
+
+    @objc func openUpdate() {
+        if let update { tellUpdate(update) }
+    }
+
+    func tellUpdate(_ release: Updater.Release) {
+        let alert = NSAlert()
+        alert.messageText = "Machine Mark \(release.version) is available"
+        alert.informativeText = "You have \(Updater.current). To update, run this in your copy of the project:\n\ngit pull && ./build.sh install"
+        alert.addButton(withTitle: "Open Release Page")
+        alert.addButton(withTitle: "Later")
+        NSApp.activate(ignoringOtherApps: true)
+        if alert.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(release.page) }
+    }
+
+    func tell(_ title: String, _ text: String) {
+        let alert = NSAlert()
+        alert.messageText = title
+        alert.informativeText = text
+        NSApp.activate(ignoringOtherApps: true)
+        alert.runModal()
     }
 
     // ⌃⌥⌘A, from anywhere (Carbon's hotkeys need no accessibility permission).

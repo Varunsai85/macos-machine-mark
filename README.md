@@ -24,6 +24,16 @@ You need the Xcode command line tools (`xcode-select --install`).
 
 `./build.sh` only builds into `build/`, and `./build.sh run` builds and opens the window.
 
+## Update
+
+Once a day the app asks GitHub for the latest release. When there's a newer one, the menu bar icon gains a ring and its menu shows **Update to …**. To update, run this in your copy of the project:
+
+```bash
+git pull && ./build.sh install
+```
+
+**Check for Updates…** in the menu checks right away, and **Check for Updates Automatically** turns the daily check off.
+
 ## Logo
 
 The logo is the sigil boiled down to a few rings: the cores as short spokes, a blue ring for hardware, and yellow and pink rings filled part-way like the window's dials, all in round dots.
@@ -43,7 +53,7 @@ To start it at login, add it in **System Settings → General → Login Items**.
 
 ## What it reads
 
-It only reads. It changes no settings, writes no files, and nothing leaves the Mac.
+It only reads. It changes no settings and writes no files. Nothing about the Mac leaves it: the only request it makes is the update check, which asks GitHub for the latest release and sends nothing else (turn it off from the menu bar menu).
 
 - `sysctl` (CPU, cores, uptime), `system_profiler` (GPU, displays, model), the GPU's load from IOKit
 - memory statistics and the startup disk's capacity
