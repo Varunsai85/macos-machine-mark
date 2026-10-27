@@ -37,6 +37,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     var updateItems: [NSMenuItem] = []
     var autoCheckItem: NSMenuItem!
     var updateTimer: Timer?
+    var about: AboutWindow?
+    // Set while bringing the app forward for a panel (About, an alert), so
+    // becoming active doesn't also open the main window.
+    var quietActivation = false
 
     func applicationDidFinishLaunching(_ n: Notification) {
         UserDefaults.standard.register(defaults: ["checkForUpdates": true])
@@ -82,7 +86,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
     }
 
     func applicationDidBecomeActive(_ n: Notification) {
-        if !window.isVisible && !window.isMiniaturized { open() }
+        if quietActivation { quietActivation = false; return }
+        if !window.isVisible && !window.isMiniaturized && !(about?.isVisible ?? false) { open() }
+    }
+
+    func activateQuietly() {
+        if !NSApp.isActive { quietActivation = true }
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc func showAbout() {
+        if about == nil {
+            about = AboutWindow()
+            about?.onCheckForUpdates = { [weak self] in self?.checkForUpdates() }
+        }
+        activateQuietly()
+        about?.makeKeyAndOrderFront(nil)
     }
 
     // ------------------------------------------------------------ window
@@ -215,6 +234,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         let main = NSMenu()
         let appItem = NSMenuItem()
         let appMenu = NSMenu()
+        let aboutItem = NSMenuItem(title: "About Machine Mark", action: #selector(showAbout), keyEquivalent: "")
+        aboutItem.target = self
+        appMenu.addItem(aboutItem)
+        appMenu.addItem(.separator())
         appMenu.addItem(updateItem())
         let checkItem = NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
         checkItem.target = self
@@ -247,6 +270,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         openItem.keyEquivalentModifierMask = [.control, .option, .command]
         openItem.target = self
         menu.addItem(openItem)
+        let aboutItem = NSMenuItem(title: "About Machine Mark", action: #selector(showAbout), keyEquivalent: "")
+        aboutItem.target = self
+        menu.addItem(aboutItem)
         menu.addItem(.separator())
         menu.addItem(updateItem())
         let checkItem = NSMenuItem(title: "Check for Updates…", action: #selector(checkForUpdates), keyEquivalent: "")
@@ -321,7 +347,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         alert.informativeText = "You have \(Updater.current). To update, run this in your copy of the project:\n\ngit pull && ./build.sh install"
         alert.addButton(withTitle: "Open Release Page")
         alert.addButton(withTitle: "Later")
-        NSApp.activate(ignoringOtherApps: true)
+        activateQuietly()
         if alert.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(release.page) }
     }
 
@@ -329,7 +355,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKSc
         let alert = NSAlert()
         alert.messageText = title
         alert.informativeText = text
-        NSApp.activate(ignoringOtherApps: true)
+        activateQuietly()
         alert.runModal()
     }
 

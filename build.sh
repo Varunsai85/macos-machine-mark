@@ -7,9 +7,12 @@
 set -euo pipefail
 
 # Bump with each release; the app compares it with the latest GitHub release.
-version=1.0.0
+version=1.1.0
 
 cd "$(dirname "$0")"
+# The About window shows these; a copy without git history shows none.
+build=$(git rev-list --count HEAD 2>/dev/null || echo 0)
+commit=$(git rev-parse --short HEAD 2>/dev/null || true)
 app="build/Machine Mark.app"
 rm -rf "$app"
 mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
@@ -33,7 +36,8 @@ cat > "$app/Contents/Info.plist" <<PLIST
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundleShortVersionString</key><string>$version</string>
-  <key>CFBundleVersion</key><string>1</string>
+  <key>CFBundleVersion</key><string>$build</string>
+  <key>MachineMarkCommit</key><string>$commit</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>LSUIElement</key><true/>
   <key>NSHighResolutionCapable</key><true/>
